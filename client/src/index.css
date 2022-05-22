@@ -36,3 +36,15 @@ code {
 button {
   font-size: calc(10px + 2vmin);
 }
+
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+}
+
+.login-form form {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
