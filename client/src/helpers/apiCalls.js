@@ -14,6 +14,13 @@ export const loginApi = async (email, password) => {
   return response.json()
 }
 
+export const logoutApi = async () => {
+  const response = await fetch(`${API_URL}/logout`, {
+    credentials: "include",
+  })
+  return response.json()
+}
+
 export const checkAuthStatusApi = async () => {
   const response = await fetch(`${API_URL}/me`, {
     credentials: "include", // store received cookies!

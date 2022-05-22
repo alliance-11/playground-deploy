@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react"
-import { DataContext } from "../App"
+import { useDataContext } from "../contexts/DataProvider"
 import { fetchBooksApi } from "../helpers/apiCalls"
 
 const Dashboard = () => {
-  const { books, setBooks, setError } = useContext(DataContext)
+  const { books, setBooks, setError } = useDataContext()
   const [loading, setLoading] = useState(false)
 
   // load books from backend!
