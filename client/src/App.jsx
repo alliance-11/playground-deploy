@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react"
-import { Routes, Route, Link, useNavigate } from "react-router-dom"
+import { Routes, Route, NavLink, useNavigate } from "react-router-dom"
 import Dashboard from "./components/Dashboard"
 import LoginPage from "./components/LoginPage"
 import { checkAuthStatusApi } from "./helpers/apiCalls"
@@ -12,8 +12,9 @@ function App() {
 
   const [user, setUser] = useState()
   const [books, setBooks] = useState([])
+  const [error, setError] = useState("")
 
-  const sharedData = { user, setUser, books, setBooks }
+  const sharedData = { user, setUser, books, setBooks, error, setError }
 
   const navigate = useNavigate()
 
@@ -24,7 +25,6 @@ function App() {
       if(!user && !result.error) setUser(result)
     }
     checkAuthStatus()
-
   }, [])
 
   const logout = async (e) => {
@@ -51,21 +51,26 @@ function App() {
   return (
     <DataContext.Provider value={sharedData}>
       <div className="App">
-        <header className="App-header">
+        <header>
+          <div className="error">{error}</div>
           <nav>
-            <Link to="/">Home</Link>
-            { !user && <Link to="/login">Login</Link> }
-            { user && <Link to="/dashboard">Dashboard</Link> }
-            { user && <Link to="#" onClick={ logout }>Logout</Link> }
+            <NavLink to="/">Home</NavLink>
+            {!user && <NavLink to="/login">Login</NavLink>}
+            {user && <NavLink to="/dashboard">Dashboard</NavLink>}
+            {user && (
+              <NavLink to="#" onClick={logout}>
+                Logout
+              </NavLink>
+            )}
           </nav>
-          <main>
-            <Routes>
-              <Route index element={<div>Homepage</div>} />
-              <Route path="login" element={<LoginPage />} />
-              <Route path="dashboard" element={<Dashboard />} />
-            </Routes>
-          </main>
         </header>
+        <main>
+          <Routes>
+            <Route index element={<h2>My home is my library</h2>} />
+            <Route path="login" element={<LoginPage />} />
+            <Route path="dashboard" element={<Dashboard />} />
+          </Routes>
+        </main>
       </div>
     </DataContext.Provider>
   )

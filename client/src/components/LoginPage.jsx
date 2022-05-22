@@ -5,12 +5,10 @@ import { loginApi } from "../helpers/apiCalls"
 
 const LoginPage = () => {
 
-  const { setUser } = useContext(DataContext)
+  const { setUser, setError } = useContext(DataContext)
 
   const emailRef = useRef()
   const pwRef = useRef()
-
-  const [error, setError] = useState("")
 
   const navigate = useNavigate()
 
@@ -38,11 +36,18 @@ const LoginPage = () => {
   return (
     <div className="login-form">
       <form onSubmit={onLogin} >
+        <div>
+          <label>EMAIL</label>
         <input type="email" ref={emailRef} defaultValue="u2@u2.com" />
+        </div>
+        <div>
+        <label>PASSWORD</label>
         <input type="password" ref={pwRef} />
+        </div>
+        <div>
         <button type="submit">Login</button>
+        </div>
       </form>
-      {error && <div style={{ color: "red" }}>{error}</div>}
     </div>
   )
 }

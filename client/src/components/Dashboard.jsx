@@ -3,29 +3,22 @@ import { DataContext } from "../App"
 import { fetchBooksApi } from "../helpers/apiCalls"
 
 const Dashboard = () => {
-  const { books, setBooks } = useContext(DataContext)
+  const { books, setBooks, setError } = useContext(DataContext)
   const [loading, setLoading] = useState(false)
 
   // load books from backend!
   useEffect(() => {
-    
     const fetchBooks = async () => {
-
       setLoading(true)
 
       try {
         const result = await fetchBooksApi()
-        console.log(result)
-
-        if (result.error) {
-          return console.log(
-            "[OUCH] When fetching books that happened: ",
-            result.error
-          )
-        }
+        if (result.error) return setError(result.error)
         setBooks(result)
-      } catch (err) {
+      } 
+      catch (err) {
         console.log("[OUCH] Cannot fetch books from API!", err.message)
+        setError(err.message)
       }
       setLoading(false)
     }
@@ -35,12 +28,13 @@ const Dashboard = () => {
   }, [])
 
   return (
-    <div className="books">
+    <div className="dashboard">
       {loading
         ? "Loading..."
         : books.map((book) => (
-            <div key={book._id}>
-              {book.title} ({book.author})
+            <div className="book" key={book._id}>
+              <div className="title">{book.title}</div>
+              <div className="author">{book.author}</div>
             </div>
           ))}
     </div>
