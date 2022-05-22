@@ -8,8 +8,8 @@ POST {{API_URL}}/login
 Content-Type: application/json
 
 {
-  "email": "u1@u1.com",
-  "password": "u1"
+  "email": "u2@u2.com",
+  "password": "u2"
 }
 
 ### PROTECTED RESOURCE

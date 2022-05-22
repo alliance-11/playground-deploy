@@ -1,47 +1,48 @@
-import express from 'express'
-import cors from 'cors'
-import session from 'express-session'
-import dotenv from 'dotenv'
+import express from "express"
+import cors from "cors"
+import session from "express-session"
+import dotenv from "dotenv"
+import { db } from './data/db.js'
+
+// FAKE database
+const { users, books } = db
 
 // read ENVIRONMENT config from .env
 dotenv.config()
 
 const app = express()
 
-app.use( cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:3000", credentials: true }) ) // CORS check
-app.use( express.json() ) // parse JSON body
+app.use(
+  cors({
+    origin: process.env.FRONTEND_ORIGIN || "http://localhost:3000",
+    credentials: true,
+  })
+) // CORS check
+app.use(express.json()) // parse JSON body
 
 // SESSION / COOKIE config
-app.use( session({
-  secret: "h@lyS$cr$!",
-  saveUninitialized: false,
-  resave: false,
-  proxy: true,
-  cookie: {
-    httpOnly: true,
-    maxAge: 1000*60*60*5, // 1000*60 => 1 min 
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none": "lax"
-  }
-}))
+app.use(
+  session({
+    secret: "h@lyS$cr$!",
+    saveUninitialized: false,
+    resave: false,
+    proxy: true,
+    cookie: {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 5, // => 5 hours lifetime | 1000*60 = 1 min
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    },
+  })
+)
 
+// HOME ROUTE
 app.get("/", (req, res) => {
   res.json({
-    message: "Welcome to Auth API. Hack me if you can..."
+    message: "Welcome to Auth API. Hack me if you can...",
   })
 })
 
-// FAKE user database
-const users = [
-  { _id: "u1", email: "u1@u1.com", pw: "u1", books: ["b1"] },
-  { _id: "u2", email: "u2@u2.com", pw: "u2", books: ["b1", "b2"] },
-  { _id: "u3", email: "u3@u3.com", pw: "u3", books: ["b1", "b2", "b3"] },
-]
-const books = [
-  { _id: "b1", title: "Der Prozess", author: "Franz Kafka" },
-  { _id: "b2", title: "Alice in Wonderland", author: "Lewis Carrol" },
-  { _id: "b3", title: "Das Glasperlenspiel", author: "Hermann Hesse" },
-]
 
 app.post("/login", (req, res) => {
   const { email, password } = req.body
@@ -69,41 +70,40 @@ app.post("/login", (req, res) => {
 
 app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
-    if(err) {
+    if (err) {
       return res.status(500).json({
-        error: "Logout failed. Try again later..."
+        error: "Logout failed. Try again later...",
       })
     }
     res.json({
-      message: "Logged you out successfully!"
+      message: "Logged you out successfully!",
     })
-
   })
 })
 
 // security guard
 const auth = (req, res, next) => {
-
-  if(!req.session.user) {
+  if (!req.session.user) {
     return res.status(401).json({
       error: "Dios mio! Not authenticated! No rights whats-o-ever here...",
     })
   }
-
-  next()
-
+  next() // user exists in session => allow passing to requested route
 }
 
+// AUTH check route
 app.get("/me", auth, (req, res) => {
+
+  // send logged-in user info back to frontend
   res.json(req.session.user)
 })
 
-// protected page
+// Protected resource
 app.get("/books", auth, (req, res) => {
   console.log("SESSION:", req.session.user)
 
   // check if we already have books cached in session!
-  if(req.session.books) {
+  if (req.session.books) {
     console.log("--fetching books from SESSION STORE")
     return res.json(req.session.books)
   }
@@ -115,10 +115,8 @@ app.get("/books", auth, (req, res) => {
   req.session.books = userBooks // cache books in session
 
   console.log("--fetching books FRESH")
-  // simulate delay
-  setTimeout(() => {
-    res.json(userBooks)
-  }, 1000)
+
+  res.json(userBooks)
 })
 
 const PORT = process.env.PORT || 5000
