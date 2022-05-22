@@ -29,9 +29,9 @@ app.get("/", (req, res) => {
 
 // FAKE user database
 const users = [
-  { _id: "u1", email: "u1@u1.com", pw: "u1" },
-  { _id: "u2", email: "u2@u2.com", pw: "u2" },
-  { _id: "u3", email: "u3@u3.com", pw: "u3" },
+  { _id: "u1", email: "u1@u1.com", pw: "u1", books: ["b1"] },
+  { _id: "u2", email: "u2@u2.com", pw: "u2", books: ["b1", "b2"] },
+  { _id: "u3", email: "u3@u3.com", pw: "u3", books: ["b1", "b2", "b3"] },
 ]
 const books = [
   { _id: "b1", title: "Der Prozess", author: "Franz Kafka" },
@@ -42,20 +42,22 @@ const books = [
 app.post("/login", (req, res) => {
   const { email, password } = req.body
 
-  if(!email || !password) {
-    return res.status(400).json({ error: "Provide email and password fields"})
+  if (!email || !password) {
+    return res.status(400).json({ error: "Provide email and password fields" })
   }
 
-  const user = users.find(user => user.email == email && user.pw == password)
+  const user = users.find((user) => user.email == email && user.pw == password)
 
-  if(!user) {
-    return res.status(400).json({ error: "No user found with given credentials. Try again!" })
+  if (!user) {
+    return res
+      .status(400)
+      .json({ error: "No user found with given credentials. Try again!" })
   }
 
   // extract public user info
-  const {pw, ...userPublic} = user
+  const { pw, ...userPublic } = user
 
-  // create SESSION
+  // create SESSION + Cookie!
   req.session.user = userPublic
 
   res.json(userPublic)
@@ -90,10 +92,25 @@ const auth = (req, res, next) => {
 
 // protected page
 app.get("/books", auth, (req, res) => {
-
   console.log("SESSION:", req.session.user)
 
-  res.json(books)
+  // check if we already have books cached in session!
+  if(req.session.books) {
+    console.log("--fetching books from SESSION STORE")
+    return res.json(req.session.books)
+  }
+
+  // no books in session => fetch ON DEMAND and store in session
+  const userBooks = books.filter((book) =>
+    req.session.user.books.includes(book._id)
+  )
+  req.session.books = userBooks // cache books in session
+
+  console.log("--fetching books FRESH")
+  // simulate delay
+  setTimeout(() => {
+    res.json(userBooks)
+  }, 1000)
 })
 
 const PORT = process.env.PORT || 5000
