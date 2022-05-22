@@ -1,10 +1,14 @@
 import express from 'express'
 import cors from 'cors'
 import session from 'express-session'
+import dotenv from 'dotenv'
+
+// read ENVIRONMENT config from .env
+dotenv.config()
 
 const app = express()
 
-app.use( cors() ) // CORS check
+app.use( cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:3000", credentials: true }) ) // CORS check
 app.use( express.json() ) // parse JSON body
 
 // SESSION / COOKIE config
@@ -89,6 +93,10 @@ const auth = (req, res, next) => {
   next()
 
 }
+
+app.get("/me", auth, (req, res) => {
+  res.json(req.session.user)
+})
 
 // protected page
 app.get("/books", auth, (req, res) => {
