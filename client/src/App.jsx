@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react"
 import { Routes, Route, Link, useNavigate } from "react-router-dom"
 import Dashboard from "./components/Dashboard"
 import LoginPage from "./components/LoginPage"
+import { checkAuthStatusApi } from "./helpers/apiCalls"
 
 export const DataContext = createContext()
 
@@ -19,13 +20,7 @@ function App() {
   // load initial user data (=> also used to authenticate)
   useEffect(() => {
     const checkAuthStatus = async () => {
-      const response = await fetch(`${API_URL}/me`, {
-        credentials: "include", // store received cookies!
-      })
-  
-      const result = await response.json()
-      console.log(result)
-  
+      const result = await checkAuthStatusApi()  
       if(!user && !result.error) setUser(result)
     }
     checkAuthStatus()
@@ -46,8 +41,9 @@ function App() {
       return console.log("[OUCH]", result.error)
     }
 
-    // logout user (=clear from state!)
+    // logout user (=clear user state!)
     setUser()
+    setBooks([])
 
     navigate("/") // navigate to home page
   }

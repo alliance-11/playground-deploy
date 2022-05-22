@@ -1,39 +1,50 @@
-import { useContext, useEffect } from "react";
-import { DataContext } from "../App";
+import { useContext, useEffect, useState } from "react"
+import { DataContext } from "../App"
+import { fetchBooksApi } from "../helpers/apiCalls"
 
 const Dashboard = () => {
-
   const { books, setBooks } = useContext(DataContext)
-
-  console.log(books)
+  const [loading, setLoading] = useState(false)
 
   // load books from backend!
   useEffect(() => {
     
     const fetchBooks = async () => {
+
+      setLoading(true)
+
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/books`, {
-          credentials: 'include' // send cookies along!
-        })
-        const result = await response.json()
-        if(result.error) {
-          return console.log("[OUCH] When fetching books that happened: ", result.error)
+        const result = await fetchBooksApi()
+        console.log(result)
+
+        if (result.error) {
+          return console.log(
+            "[OUCH] When fetching books that happened: ",
+            result.error
+          )
         }
         setBooks(result)
-      }
-      catch(err) {
+      } catch (err) {
         console.log("[OUCH] Cannot fetch books from API!", err.message)
       }
+      setLoading(false)
     }
 
-    fetchBooks()
+    // load books from API if books are not loaded so far...
+    !books.length && fetchBooks()
   }, [])
 
-  return ( <div className="books">
-      { (books).map(book => (
-        <div key={book._id}>{book.title} ({book.author})</div>
-      ))}
-  </div> );
+  return (
+    <div className="books">
+      {loading
+        ? "Loading..."
+        : books.map((book) => (
+            <div key={book._id}>
+              {book.title} ({book.author})
+            </div>
+          ))}
+    </div>
+  )
 }
- 
-export default Dashboard;
+
+export default Dashboard

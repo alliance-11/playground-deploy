@@ -1,8 +1,7 @@
 import { useContext, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { DataContext } from "../App"
-
-const API_URL = import.meta.env.VITE_API_URL
+import { loginApi } from "../helpers/apiCalls"
 
 const LoginPage = () => {
 
@@ -21,26 +20,12 @@ const LoginPage = () => {
     const email = emailRef.current.value
     const password = pwRef.current.value
 
-    const credentials = { email, password }
-
     if(!email || !password) 
       return setError("Without Email & Password => no party, bro!")
 
-    const response = await fetch(`${API_URL}/login`, {
-      method: "POST",
-      body: JSON.stringify(credentials),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include", // store received cookies!
-    })
-
-    const result = await response.json()
-    console.log(result)
-
-    if (result.error) {
-      return setError(result.error)
-    }
+      // login at API with email & password
+    const result = await loginApi(email, password)
+    if (result.error) return setError(result.error)
 
     // place user (=> our login status in frontend!)
     setUser(result)
