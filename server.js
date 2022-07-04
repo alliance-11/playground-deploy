@@ -14,7 +14,7 @@ const app = express()
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN || "http://localhost:3000",
+    origin: "http://localhost:3000",
     credentials: true,
   })
 ) // CORS check
@@ -30,8 +30,6 @@ app.use(
     cookie: {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 5, // => 5 hours lifetime | 1000*60 = 1 min
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     },
   })
 )
