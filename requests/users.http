@@ -12,9 +12,10 @@ Content-Type: application/json
   "password": "u2"
 }
 
-### PROTECTED RESOURCE
+### PROTECTED RESOURCES
+GET {{API_URL}}/users
+
 GET {{API_URL}}/books
-Content-Type: application/json
 
 ### LOGOUT
 GET {{API_URL}}/logout

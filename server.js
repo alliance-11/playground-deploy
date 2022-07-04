@@ -98,6 +98,10 @@ app.get("/me", auth, (req, res) => {
   res.json(req.session.user)
 })
 
+app.get("/users", auth, (req, res) => {
+  res.json(users)
+})
+
 // Protected resource
 app.get("/books", auth, (req, res) => {
   console.log("SESSION:", req.session.user)
